@@ -23,3 +23,9 @@ RUN go build -o main .
 # Our start command which kicks off
 # our newly created binary executable
 CMD ["/app/main"]
+
+#commands for shh:
+#docker build -t my-go-app .
+#docker ps
+#docker run -p 80:8000 -d -it my-go-app
+# OR docker kill [CONTAINER ID]
