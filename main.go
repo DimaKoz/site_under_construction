@@ -1,33 +1,34 @@
 package main
 
 import (
+	"about/etagging"
 	"errors"
 	"fmt"
 	"github.com/google/logger"
 	"github.com/gorilla/mux"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 )
 
 const (
+	logPath = "log.txt"
 
-	logPath           = "log.txt"
-
-	pathPatternRoot     = "/"
-	pathPatternNotFound = "/404"
+	pathPatternRoot         = "/"
+	pathPatternNotFound     = "/404"
 	pathPatternUnknownError = "/500"
-	pathPatternFavicon  = "/favicon.ico"
-	pathPatternWoff2    = "/assets/woff2/"
-	pathPatternCss      = "/assets/css/"
-	pathPatternJs      = "/assets/script/"
-	pathPatternImage    = "/assets/image/"
+	pathPatternFavicon      = "/favicon.ico"
+	pathPatternWoff2        = "/assets/woff2/"
+	pathPatternCss          = "/assets/css/"
+	pathPatternJs           = "/assets/script/"
+	pathPatternImage        = "/assets/image/"
 )
+
 var log *logger.Logger = nil
-
-
 
 func main() {
 
@@ -64,13 +65,13 @@ func defaultMux() *mux.Router {
 	router := mux.NewRouter()
 	router.NotFoundHandler = RecoverWrap(http.HandlerFunc(requestPanic))
 	router.Handle(pathPatternUnknownError, RecoverWrap(http.HandlerFunc(requestUnknownError)))
-	router.Handle(pathPatternRoot, RecoverWrap(http.HandlerFunc(rootHandler)))
+	router.Handle(pathPatternRoot, RecoverWrap(checkCache(http.HandlerFunc(rootHandler), false)))
 	router.Handle(pathPatternNotFound, RecoverWrap(http.HandlerFunc(requestPanic)))
 	router.Handle(pathPatternFavicon, RecoverWrap(http.HandlerFunc(favicon)))
-	router.PathPrefix(pathPatternWoff2).Handler(RecoverWrap(http.HandlerFunc(serveStatic)))
-	router.PathPrefix(pathPatternCss).Handler(RecoverWrap(http.HandlerFunc(serveStatic)))
-	router.PathPrefix(pathPatternJs).Handler( RecoverWrap(http.HandlerFunc(serveStatic)))
-	router.PathPrefix(pathPatternImage).Handler(RecoverWrap(http.HandlerFunc(serveStatic)))
+	router.PathPrefix(pathPatternWoff2).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
+	router.PathPrefix(pathPatternCss).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
+	router.PathPrefix(pathPatternJs).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
+	router.PathPrefix(pathPatternImage).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
 	return router
 }
 
@@ -78,9 +79,36 @@ func requestUnknownError(w http.ResponseWriter, r *http.Request) {
 	panic("oops")
 }
 
-
 func requestPanic(w http.ResponseWriter, r *http.Request) {
 	panic(newNotFoundError())
+}
+
+func checkCache(h http.Handler, isStatic bool) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var data []byte
+		var err error
+		if (!isStatic && r.URL.Path == "/") {
+			data, err = ioutil.ReadFile("./html/under_construction.html")
+		} else {
+			path := r.URL.Path[1:]
+			data, err = ioutil.ReadFile(path)
+		}
+
+		if err == nil {
+			etagValue := etagging.Generate(string(data), true)
+			if match := r.Header.Get("If-None-Match"); match != "" {
+				if strings.Contains(match, etagValue) {
+					w.WriteHeader(http.StatusNotModified)
+					return
+				}
+			}
+			w.Header().Set("Cache-Control", "max-age=3600")
+			w.Header().Set("Etag", etagValue)
+			h.ServeHTTP(w, r)
+		} else {
+			panic(newNotFoundError())
+		}
+	})
 }
 
 func RecoverWrap(h http.Handler) http.Handler {
