@@ -15,7 +15,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		panic(newNotFoundError())
 	}
 
-	t, err := template.ParseFiles("./html/under_construction.html")
+	t, err := template.ParseFiles(htmlUnderConstruction)
 	if err != nil {
 		panic(newNotFoundError())
 		return

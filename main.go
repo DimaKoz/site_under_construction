@@ -1,17 +1,10 @@
 package main
 
 import (
-	"about/etagging"
-	"errors"
-	"fmt"
 	"github.com/google/logger"
 	"github.com/gorilla/mux"
-	"html/template"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"runtime"
-	"strings"
 	"time"
 )
 
@@ -26,6 +19,9 @@ const (
 	pathPatternCss          = "/assets/css/"
 	pathPatternJs           = "/assets/script/"
 	pathPatternImage        = "/assets/image/"
+	html500                 = "./html/error_500_page.html"
+	html404                 = "./html/error_404_page.html"
+	htmlUnderConstruction   = "./html/under_construction.html"
 )
 
 var log *logger.Logger = nil
@@ -75,104 +71,11 @@ func defaultMux() *mux.Router {
 	return router
 }
 
-func requestUnknownError(w http.ResponseWriter, r *http.Request) {
+func requestUnknownError(_ http.ResponseWriter, _ *http.Request) {
 	panic("oops")
 }
 
-func requestPanic(w http.ResponseWriter, r *http.Request) {
+func requestPanic(_ http.ResponseWriter, _ *http.Request) {
 	panic(newNotFoundError())
 }
 
-func checkCache(h http.Handler, isStatic bool) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var data []byte
-		var err error
-		if (!isStatic && r.URL.Path == "/") {
-			data, err = ioutil.ReadFile("./html/under_construction.html")
-		} else {
-			path := r.URL.Path[1:]
-			data, err = ioutil.ReadFile(path)
-		}
-
-		if err == nil {
-			etagValue := etagging.Generate(string(data), true)
-			if match := r.Header.Get("If-None-Match"); match != "" {
-				if strings.Contains(match, etagValue) {
-					w.WriteHeader(http.StatusNotModified)
-					return
-				}
-			}
-			w.Header().Set("Cache-Control", "max-age=3600")
-			w.Header().Set("Etag", etagValue)
-			h.ServeHTTP(w, r)
-		} else {
-			panic(newNotFoundError())
-		}
-	})
-}
-
-func RecoverWrap(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var err error
-		defer func() {
-			r := recover()
-			if r != nil {
-				switch t := r.(type) {
-				case string:
-					err = errors.New(t)
-				case error:
-					err = t
-				default:
-					err = errors.New("Unknown error")
-				}
-				log.Warningln("recover() != nil")
-				ferr, ok := err.(*notFoundError)
-				//errState := http.StatusInternalServerError
-				if ok {
-					fmt.Println("notFoundError", ferr)
-
-					t, err := template.ParseFiles("./html/error_404_page.html")
-					if err != nil {
-						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-						return
-					}
-					//errState = http.StatusNotFound
-					w.WriteHeader(http.StatusNotFound)
-					err = t.Execute(w, nil)
-					if err != nil {
-						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-						return
-					}
-					return
-				} else {
-					fmt.Println("unknown type of error")
-					fmt.Println(err)
-
-					t, err := template.ParseFiles("./html/error_500_page.html")
-					if err != nil {
-						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-						return
-					}
-					w.WriteHeader(http.StatusInternalServerError)
-					err = t.Execute(w, nil)
-					if err != nil {
-						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-						return
-					}
-
-				}
-				loggingErr(err)
-				//TODO sendMeMail(err)
-				//http.Error(w, err.Error(), errState)
-			}
-		}()
-		h.ServeHTTP(w, r)
-	})
-}
-
-func loggingErr(err error) {
-	logger.Error(err.Error())
-	buf := make([]byte, 1<<16)
-	stackSize := runtime.Stack(buf, true)
-	logger.Error(string(buf[0:stackSize]))
-}
