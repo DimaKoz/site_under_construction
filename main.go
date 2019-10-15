@@ -63,7 +63,7 @@ func defaultMux() *mux.Router {
 	router.Handle(pathPatternUnknownError, RecoverWrap(http.HandlerFunc(requestUnknownError)))
 	router.Handle(pathPatternRoot, RecoverWrap(checkCache(http.HandlerFunc(rootHandler), false)))
 	router.Handle(pathPatternNotFound, RecoverWrap(http.HandlerFunc(requestPanic)))
-	router.Handle(pathPatternFavicon, RecoverWrap(http.HandlerFunc(favicon)))
+	router.Handle(pathPatternFavicon, RecoverWrap(checkCache(http.HandlerFunc(favicon), false)))
 	router.PathPrefix(pathPatternWoff2).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
 	router.PathPrefix(pathPatternCss).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
 	router.PathPrefix(pathPatternJs).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
