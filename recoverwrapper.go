@@ -41,7 +41,6 @@ func RecoverWrap(h http.Handler) http.Handler {
 						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
 						return
 					}
-					loggingErr(err)
 					return
 				} else {
 					fmt.Println("unknown type of error")
@@ -70,6 +69,9 @@ func RecoverWrap(h http.Handler) http.Handler {
 }
 
 func loggingErr(err error) {
+	if err == nil {
+		return
+	}
 	logger.Error(err.Error())
 	buf := make([]byte, 1<<16)
 	stackSize := runtime.Stack(buf, true)
