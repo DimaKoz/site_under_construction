@@ -15,7 +15,13 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		panic(newNotFoundError())
 	}
 
-	t, err := template.ParseFiles(htmlUnderConstruction)
+	data, err := getBytes(htmlUnderConstruction)
+	if err != nil {
+		log.Warningln(logMessage)
+		panic(newNotFoundError())
+	}
+	strData := string(*data)
+	t, err := template.New("root").Parse(strData)
 	if err != nil {
 		panic(newNotFoundError())
 		return

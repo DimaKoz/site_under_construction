@@ -41,6 +41,7 @@ func RecoverWrap(h http.Handler) http.Handler {
 						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
 						return
 					}
+					loggingErr(err)
 					return
 				} else {
 					fmt.Println("unknown type of error")

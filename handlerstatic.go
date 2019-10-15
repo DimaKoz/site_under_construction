@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -10,8 +9,10 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 	//TODO etag , for example https://github.com/bouk/staticfiles/blob/master/files/files.go and https://github.com/dc0d/cache-control
 
 	path := r.URL.Path[1:]
-	data, err := ioutil.ReadFile(path)
+
+	data, err := getBytes(path)
 	if err == nil {
+
 		var contentType string
 
 		if strings.HasSuffix(path, ".css") {
@@ -34,7 +35,7 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Add("Content-Type", contentType)
 
-		if _, err := w.Write(data); err != nil {
+		if _, err := w.Write(*data); err != nil {
 			panic(err)
 		}
 	} else {
