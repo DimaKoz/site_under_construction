@@ -48,4 +48,3 @@ func GetBytes(fileName string) (*[]byte, error) {
 	copy(result, bytesFromCache)
 	return &result, nil
 }
-

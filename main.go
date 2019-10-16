@@ -7,12 +7,11 @@ import (
 	"os"
 	"time"
 	"under_construction/app"
-	"under_construction/app/app_errors"
+	"under_construction/app/apperrors"
 	"under_construction/app/handlers"
 )
 
-
-var log *logger.Logger = nil
+var log *logger.Logger
 
 func main() {
 
@@ -64,6 +63,5 @@ func requestUnknownError(_ http.ResponseWriter, _ *http.Request) {
 }
 
 func requestPanic(_ http.ResponseWriter, _ *http.Request) {
-	panic(app_errors.NewNotFoundError())
+	panic(apperrors.NewNotFoundError())
 }
-

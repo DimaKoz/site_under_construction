@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 	"under_construction/app"
-	err2 "under_construction/app/app_errors"
+	err2 "under_construction/app/apperrors"
 )
 
 func TestFaviconHandler(t *testing.T) {
@@ -26,7 +26,6 @@ func TestFaviconHandler(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-
 
 	base64Text := make([]byte, base64.StdEncoding.EncodedLen(len(rr.Body.String())))
 	base64.StdEncoding.Encode(base64Text, []byte(rr.Body.String()))
@@ -70,4 +69,3 @@ func TestFaviconHandlerError(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 }
-

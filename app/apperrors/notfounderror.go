@@ -1,4 +1,4 @@
-package app_errors
+package apperrors
 
 type NotFoundError struct {
 	msg string

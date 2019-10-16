@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"under_construction/app"
-	err2 "under_construction/app/app_errors"
+	err2 "under_construction/app/apperrors"
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {

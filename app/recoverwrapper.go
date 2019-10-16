@@ -7,7 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"runtime"
-	"under_construction/app/app_errors"
+	"under_construction/app/apperrors"
 )
 
 func RecoverWrap(h http.Handler) http.Handler {
@@ -25,7 +25,7 @@ func RecoverWrap(h http.Handler) http.Handler {
 					err = errors.New("Unknown error")
 				}
 				log.Warningln("recover() != nil")
-				ferr, ok := err.(*app_errors.NotFoundError)
+				ferr, ok := err.(*apperrors.NotFoundError)
 				//errState := http.StatusInternalServerError
 				if ok {
 					fmt.Println("NotFoundError", ferr)

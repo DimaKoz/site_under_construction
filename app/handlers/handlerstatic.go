@@ -1,20 +1,16 @@
 package handlers
 
 import (
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"under_construction/app"
-	err2 "under_construction/app/app_errors"
-
+	err2 "under_construction/app/apperrors"
 )
 
 func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	//TODO etag , for example https://github.com/bouk/staticfiles/blob/master/files/files.go and https://github.com/dc0d/cache-control
 
 	path := r.URL.Path[1:]
-	files, err := ioutil.ReadDir("./")
-	println(files)
 
 	data, err := app.GetBytes(path)
 	if err == nil {
@@ -28,7 +24,6 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 		panic(err2.NewNotFoundError())
 	}
 }
-
 
 func getContentType(path string) string {
 	var contentType string

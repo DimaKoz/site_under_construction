@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	err2 "under_construction/app/app_errors"
+	err2 "under_construction/app/apperrors"
 )
 
 func TestHandler(t *testing.T) {
@@ -139,7 +139,6 @@ func TestContentType(t *testing.T) {
 	}
 
 }
-
 
 // NewRecorder returns an initialized ResponseRecorder.
 func NewRecorderTest() *ResponseRecorderTest {

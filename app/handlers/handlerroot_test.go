@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 	"under_construction/app"
-	err2 "under_construction/app/app_errors"
+	err2 "under_construction/app/apperrors"
 )
 
-var log1 *log.Logger = nil
+var log1 *log.Logger
 
-var lf *os.File = nil
+var lf *os.File
 
 func initLogger() {
 	var errLog error
@@ -106,7 +106,6 @@ func TestRootHandlerNotFound(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 }
-
 
 func TestRootHandlerNotFound2(t *testing.T) {
 	initLogger()
