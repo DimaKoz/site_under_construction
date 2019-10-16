@@ -12,27 +12,7 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 
 	data, err := getBytes(path)
 	if err == nil {
-
-		var contentType string
-
-		if strings.HasSuffix(path, ".css") {
-			contentType = "text/css"
-		} else if strings.HasSuffix(path, ".html") {
-			contentType = "text/html"
-		} else if strings.HasSuffix(path, ".woff2") {
-			contentType = "font/woff2"
-		} else if strings.HasSuffix(path, ".js") {
-			contentType = "application/javascript"
-		} else if strings.HasSuffix(path, ".png") {
-			contentType = "image/png"
-		} else if strings.HasSuffix(path, ".jpg") {
-			contentType = "image/jpg"
-		} else if strings.HasSuffix(path, ".svg") {
-			contentType = "image/svg+xml"
-		} else {
-			contentType = "text/plain"
-		}
-
+		contentType := getContentType(path)
 		w.Header().Add("Content-Type", contentType)
 
 		if _, err := w.Write(*data); err != nil {
@@ -41,4 +21,29 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 	} else {
 		panic(newNotFoundError())
 	}
+}
+
+
+func getContentType(path string) string {
+	var contentType string
+
+	if strings.HasSuffix(path, ".css") {
+		contentType = "text/css"
+	} else if strings.HasSuffix(path, ".html") {
+		contentType = "text/html"
+	} else if strings.HasSuffix(path, ".woff2") {
+		contentType = "font/woff2"
+	} else if strings.HasSuffix(path, ".js") {
+		contentType = "application/javascript"
+	} else if strings.HasSuffix(path, ".png") {
+		contentType = "image/png"
+	} else if strings.HasSuffix(path, ".jpg") {
+		contentType = "image/jpg"
+	} else if strings.HasSuffix(path, ".svg") {
+		contentType = "image/svg+xml"
+	} else {
+		contentType = "text/plain"
+	}
+
+	return contentType
 }

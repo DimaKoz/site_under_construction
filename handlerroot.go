@@ -24,7 +24,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("root").Parse(strData)
 	if err != nil {
 		panic(newNotFoundError())
-		return
 	}
 	w.WriteHeader(http.StatusOK)
 	err = t.Execute(w, nil)
@@ -32,7 +31,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		var str string
 		str = fmt.Sprintf("unknown error[%s]", err.Error())
 		panic(str)
-		return
 	}
 
 }
