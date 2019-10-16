@@ -1,15 +1,15 @@
-package main
+package app_errors
 
-type notFoundError struct {
+type NotFoundError struct {
 	msg string
 }
 
 // Create a function Error() string and associate it to the struct.
-func (error *notFoundError) Error() string {
+func (error *NotFoundError) Error() string {
 	return error.msg
 }
 
 // Now you can construct an error object using MyError struct.
-func newNotFoundError() error {
-	return &notFoundError{"404"}
+func NewNotFoundError() error {
+	return &NotFoundError{"404"}
 }

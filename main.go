@@ -6,29 +6,17 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"under_construction/app"
+	"under_construction/app/app_errors"
+	"under_construction/app/handlers"
 )
 
-const (
-	logPath = "log.txt"
-
-	pathPatternRoot         = "/"
-	pathPatternNotFound     = "/404"
-	pathPatternUnknownError = "/500"
-	pathPatternFavicon      = "/favicon.ico"
-	pathPatternWoff2        = "/assets/woff2/"
-	pathPatternCss          = "/assets/css/"
-	pathPatternJs           = "/assets/script/"
-	pathPatternImage        = "/assets/image/"
-	html500                 = "./html/error_500_page.html"
-	html404                 = "./html/error_404_page.html"
-	htmlUnderConstruction   = "./html/under_construction.html"
-)
 
 var log *logger.Logger = nil
 
 func main() {
 
-	lf, errLog := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+	lf, errLog := os.OpenFile(app.LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if errLog != nil {
 		logger.Fatalf("Failed to open log file: %v", errLog)
 	}
@@ -59,15 +47,15 @@ func main() {
 
 func defaultMux() *mux.Router {
 	router := mux.NewRouter()
-	router.NotFoundHandler = RecoverWrap(http.HandlerFunc(requestPanic))
-	router.Handle(pathPatternUnknownError, RecoverWrap(http.HandlerFunc(requestUnknownError)))
-	router.Handle(pathPatternRoot, RecoverWrap(checkCache(http.HandlerFunc(rootHandler), false)))
-	router.Handle(pathPatternNotFound, RecoverWrap(http.HandlerFunc(requestPanic)))
-	router.Handle(pathPatternFavicon, RecoverWrap(checkCache(http.HandlerFunc(favicon), false)))
-	router.PathPrefix(pathPatternWoff2).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
-	router.PathPrefix(pathPatternCss).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
-	router.PathPrefix(pathPatternJs).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
-	router.PathPrefix(pathPatternImage).Handler(RecoverWrap(checkCache(http.HandlerFunc(serveStatic), true)))
+	router.NotFoundHandler = app.RecoverWrap(http.HandlerFunc(requestPanic))
+	router.Handle(app.PathPatternUnknownError, app.RecoverWrap(http.HandlerFunc(requestUnknownError)))
+	router.Handle(app.PathPatternRoot, app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.RootHandler), false)))
+	router.Handle(app.PathPatternNotFound, app.RecoverWrap(http.HandlerFunc(requestPanic)))
+	router.Handle(app.PathPatternFavicon, app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeFavicon), false)))
+	router.PathPrefix(app.PathPatternWoff2).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.PathPrefix(app.PathPatternCss).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.PathPrefix(app.PathPatternJs).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.PathPrefix(app.PathPatternImage).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
 	return router
 }
 
@@ -76,6 +64,6 @@ func requestUnknownError(_ http.ResponseWriter, _ *http.Request) {
 }
 
 func requestPanic(_ http.ResponseWriter, _ *http.Request) {
-	panic(newNotFoundError())
+	panic(app_errors.NewNotFoundError())
 }
 

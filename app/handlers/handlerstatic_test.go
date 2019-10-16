@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"bytes"
@@ -7,19 +7,22 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	err2 "under_construction/app/app_errors"
 )
 
 func TestHandler(t *testing.T) {
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
-	req, err := http.NewRequest("GET", "/assets/css/montserrat.css", nil)
+	req, err := http.NewRequest("GET", "../../../assets/css/montserrat.css", nil)
+	files, err := ioutil.ReadDir("./")
+	println(files)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serveStatic)
+	handler := http.HandlerFunc(ServeStatic)
 
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.
@@ -32,7 +35,7 @@ func TestHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	data, err := ioutil.ReadFile("./assets/css/montserrat.css")
+	data, err := ioutil.ReadFile("./../../assets/css/montserrat.css")
 	expected := string(data)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got \n %v \nwant\n %v",
@@ -53,7 +56,7 @@ func TestHandlerError(t *testing.T) {
 			default:
 				err = errors.New("Unknown error")
 			}
-			_, ok := err.(*notFoundError)
+			_, ok := err.(*err2.NotFoundError)
 			if !ok {
 				t.Errorf("Unxpected type of error")
 			}
@@ -61,72 +64,16 @@ func TestHandlerError(t *testing.T) {
 
 	}()
 
-	req, err := http.NewRequest("GET", "/assets/css/montserrat.css", nil)
+	req, err := http.NewRequest("GET", "../../../assets/css/montserrat.css", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := NewRecorderTest()
-	handler := http.HandlerFunc(serveStatic)
+	handler := http.HandlerFunc(ServeStatic)
 
 	handler.ServeHTTP(rr, req)
 
-}
-
-func (rw *ResponseRecorderTest) Header() http.Header {
-	m := rw.HeaderMap
-	if m == nil {
-		m = make(http.Header)
-		rw.HeaderMap = m
-	}
-	return m
-}
-
-func (rw *ResponseRecorderTest) WriteHeader(code int) {
-	if rw.wroteHeader {
-		return
-	}
-	rw.Code = code
-	rw.wroteHeader = true
-	if rw.HeaderMap == nil {
-		rw.HeaderMap = make(http.Header)
-	}
-	rw.snapHeader = rw.HeaderMap.Clone()
-}
-
-// NewRecorder returns an initialized ResponseRecorder.
-func NewRecorderTest() *ResponseRecorderTest {
-	return &ResponseRecorderTest{
-		HeaderMap: make(http.Header),
-		Body:      new(bytes.Buffer),
-		Code:      200,
-	}
-}
-
-// ResponseRecorder is an implementation of http.ResponseWriter that
-// records its mutations for later inspection in tests.
-type ResponseRecorderTest struct {
-	// Code is the HTTP response code set by WriteHeader.
-	Code int
-
-	// HeaderMap contains the headers explicitly set by the Handler.
-	// It is an internal detail.
-	HeaderMap http.Header
-
-	// Body is the buffer to which the Handler's Write calls are sent.
-	// If nil, the Writes are silently discarded.
-	Body *bytes.Buffer
-
-	// Flushed is whether the Handler called Flush.
-	Flushed bool
-
-	result      *http.Response // cache of Result's return value
-	snapHeader  http.Header    // snapshot of HeaderMap at first Write
-	wroteHeader bool
-}
-
-func (rw *ResponseRecorderTest) Write(buf []byte) (int, error) {
-	return 0, newNotFoundError()
 }
 
 func TestHandlerNotFoundError(t *testing.T) {
@@ -142,7 +89,7 @@ func TestHandlerNotFoundError(t *testing.T) {
 			default:
 				err = errors.New("Unknown error")
 			}
-			_, ok := err.(*notFoundError)
+			_, ok := err.(*err2.NotFoundError)
 			if !ok {
 				t.Errorf("Unxpected type of error")
 			}
@@ -156,7 +103,7 @@ func TestHandlerNotFoundError(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serveStatic)
+	handler := http.HandlerFunc(ServeStatic)
 
 	handler.ServeHTTP(rr, req)
 
@@ -191,4 +138,61 @@ func TestContentType(t *testing.T) {
 		}
 	}
 
+}
+
+
+// NewRecorder returns an initialized ResponseRecorder.
+func NewRecorderTest() *ResponseRecorderTest {
+	return &ResponseRecorderTest{
+		HeaderMap: make(http.Header),
+		Body:      new(bytes.Buffer),
+		Code:      200,
+	}
+}
+
+// ResponseRecorder is an implementation of http.ResponseWriter that
+// records its mutations for later inspection in tests.
+type ResponseRecorderTest struct {
+	// Code is the HTTP response code set by WriteHeader.
+	Code int
+
+	// HeaderMap contains the headers explicitly set by the Handler.
+	// It is an internal detail.
+	HeaderMap http.Header
+
+	// Body is the buffer to which the Handler's Write calls are sent.
+	// If nil, the Writes are silently discarded.
+	Body *bytes.Buffer
+
+	// Flushed is whether the Handler called Flush.
+	Flushed bool
+
+	result      *http.Response // cache of Result's return value
+	snapHeader  http.Header    // snapshot of HeaderMap at first Write
+	wroteHeader bool
+}
+
+func (rw *ResponseRecorderTest) Write(buf []byte) (int, error) {
+	return 0, err2.NewNotFoundError()
+}
+
+func (rw *ResponseRecorderTest) Header() http.Header {
+	m := rw.HeaderMap
+	if m == nil {
+		m = make(http.Header)
+		rw.HeaderMap = m
+	}
+	return m
+}
+
+func (rw *ResponseRecorderTest) WriteHeader(code int) {
+	if rw.wroteHeader {
+		return
+	}
+	rw.Code = code
+	rw.wroteHeader = true
+	if rw.HeaderMap == nil {
+		rw.HeaderMap = make(http.Header)
+	}
+	rw.snapHeader = rw.HeaderMap.Clone()
 }

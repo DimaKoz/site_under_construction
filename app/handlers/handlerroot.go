@@ -1,29 +1,32 @@
-package main
+package handlers
 
 import (
 	"fmt"
+	log "github.com/google/logger"
 	"html/template"
 	"net/http"
+	"under_construction/app"
+	err2 "under_construction/app/app_errors"
 )
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
+func RootHandler(w http.ResponseWriter, r *http.Request) {
 
 	logMessage := fmt.Sprintf("method:[%s], path:[%s]", r.Method, r.URL.Path) //get request method
 
 	if r.URL.Path != "/" {
 		log.Warningln(logMessage)
-		panic(newNotFoundError())
+		panic(err2.NewNotFoundError())
 	}
 
-	data, err := getBytes(htmlUnderConstruction)
+	data, err := app.GetBytes(app.HtmlUnderConstruction)
 	if err != nil {
 		log.Warningln(logMessage)
-		panic(newNotFoundError())
+		panic(err2.NewNotFoundError())
 	}
 	strData := string(*data)
 	t, err := template.New("root").Parse(strData)
 	if err != nil {
-		panic(newNotFoundError())
+		panic(err2.NewNotFoundError())
 	}
 	w.WriteHeader(http.StatusOK)
 	err = t.Execute(w, nil)

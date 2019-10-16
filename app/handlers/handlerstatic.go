@@ -1,16 +1,22 @@
-package main
+package handlers
 
 import (
+	"io/ioutil"
 	"net/http"
 	"strings"
+	"under_construction/app"
+	err2 "under_construction/app/app_errors"
+
 )
 
-func serveStatic(w http.ResponseWriter, r *http.Request) {
+func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	//TODO etag , for example https://github.com/bouk/staticfiles/blob/master/files/files.go and https://github.com/dc0d/cache-control
 
 	path := r.URL.Path[1:]
+	files, err := ioutil.ReadDir("./")
+	println(files)
 
-	data, err := getBytes(path)
+	data, err := app.GetBytes(path)
 	if err == nil {
 		contentType := getContentType(path)
 		w.Header().Add("Content-Type", contentType)
@@ -19,7 +25,7 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	} else {
-		panic(newNotFoundError())
+		panic(err2.NewNotFoundError())
 	}
 }
 

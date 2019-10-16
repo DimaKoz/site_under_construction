@@ -1,18 +1,19 @@
-package main
+package app
 
 import (
-	"about/etagging"
 	"net/http"
 	"strings"
+	"under_construction/app/app_errors"
+	"under_construction/app/etagging"
 )
 
-func checkCache(h http.Handler, isStatic bool) http.Handler {
+func CheckCache(h http.Handler, isStatic bool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var data *[]byte
 		var strData string
 		var err error
 		if !isStatic && r.URL.Path == "/" {
-			data, err = getBytes(htmlUnderConstruction)
+			data, err = GetBytes(HtmlUnderConstruction)
 			if err == nil {
 				strData = string(*data)
 			}
@@ -20,7 +21,7 @@ func checkCache(h http.Handler, isStatic bool) http.Handler {
 				strData = FaviconData
 		} else {
 			path := r.URL.Path[1:]
-			data, err = getBytes(path)
+			data, err = GetBytes(path)
 			if err == nil {
 				strData = string(*data)
 			}
@@ -38,7 +39,7 @@ func checkCache(h http.Handler, isStatic bool) http.Handler {
 			w.Header().Set("Etag", etagValue)
 			h.ServeHTTP(w, r)
 		} else {
-			panic(newNotFoundError())
+			panic(app_errors.NewNotFoundError())
 		}
 	})
 }

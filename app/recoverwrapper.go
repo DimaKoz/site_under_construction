@@ -1,12 +1,13 @@
-package main
+package app
 
 import (
 	"errors"
 	"fmt"
-	"github.com/google/logger"
+	log "github.com/google/logger"
 	"html/template"
 	"net/http"
 	"runtime"
+	"under_construction/app/app_errors"
 )
 
 func RecoverWrap(h http.Handler) http.Handler {
@@ -24,12 +25,12 @@ func RecoverWrap(h http.Handler) http.Handler {
 					err = errors.New("Unknown error")
 				}
 				log.Warningln("recover() != nil")
-				ferr, ok := err.(*notFoundError)
+				ferr, ok := err.(*app_errors.NotFoundError)
 				//errState := http.StatusInternalServerError
 				if ok {
-					fmt.Println("notFoundError", ferr)
+					fmt.Println("NotFoundError", ferr)
 
-					t, err := template.ParseFiles(html404)
+					t, err := template.ParseFiles(Html404)
 					if err != nil {
 						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
 						return
@@ -46,7 +47,7 @@ func RecoverWrap(h http.Handler) http.Handler {
 					fmt.Println("unknown type of error")
 					fmt.Println(err)
 
-					t, err := template.ParseFiles(html500)
+					t, err := template.ParseFiles(Html500)
 					if err != nil {
 						http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
 						return
@@ -72,8 +73,8 @@ func loggingErr(err error) {
 	if err == nil {
 		return
 	}
-	logger.Error(err.Error())
+	log.Error(err.Error())
 	buf := make([]byte, 1<<16)
 	stackSize := runtime.Stack(buf, true)
-	logger.Error(string(buf[0:stackSize]))
+	log.Error(string(buf[0:stackSize]))
 }

@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"io/ioutil"
@@ -8,8 +8,29 @@ import (
 var cacheByte = make(map[string][]byte)
 var cacheByteMutex sync.Mutex
 
+func AddKeyAndPath(key string, path string) error {
+	cacheByteMutex.Lock()
+	defer cacheByteMutex.Unlock()
 
-func getBytes(fileName string) (*[]byte, error) {
+	bytesFromCache := cacheByte[key]
+	if bytesFromCache == nil {
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		cacheByte[key] = data
+	}
+	return nil
+}
+
+func RemoveKey(key string) {
+	cacheByteMutex.Lock()
+	defer cacheByteMutex.Unlock()
+
+	delete(cacheByte, key)
+}
+
+func GetBytes(fileName string) (*[]byte, error) {
 	cacheByteMutex.Lock()
 	defer cacheByteMutex.Unlock()
 
