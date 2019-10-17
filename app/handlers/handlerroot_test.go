@@ -58,10 +58,11 @@ func TestRootHandler(t *testing.T) {
 
 }
 
-func recovering(t *testing.T) {
-	lf.Close()
+func recoveringExpectNotFoundPanic(t *testing.T) {
+	_ = lf.Close()
 	if r := recover(); r == nil {
 		t.Errorf("The code did not panic")
+	} else {
 		var err error
 		switch t := r.(type) {
 		case string:
@@ -81,7 +82,7 @@ func recovering(t *testing.T) {
 
 func TestRootHandler404(t *testing.T) {
 	initLogger()
-	defer recovering(t)
+	defer recoveringExpectNotFoundPanic(t)
 	req, err := http.NewRequest("GET", "oops", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +98,7 @@ func TestRootHandler404(t *testing.T) {
 func TestRootHandlerNotFound(t *testing.T) {
 	initLogger()
 
-	defer recovering(t)
+	defer recoveringExpectNotFoundPanic(t)
 	app.RemoveKey(app.HtmlUnderConstruction)
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -114,7 +115,12 @@ func TestRootHandlerNotFound(t *testing.T) {
 func TestRootHandlerNotFound2(t *testing.T) {
 	initLogger()
 
-	defer recovering(t)
+	defer func() {
+		_ = lf.Close()
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
 	_ = app.AddKeyAndPath(app.HtmlUnderConstruction, "./../../html/under_construction.html")
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
