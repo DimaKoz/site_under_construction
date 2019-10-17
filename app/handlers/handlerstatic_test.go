@@ -14,8 +14,6 @@ func TestHandler(t *testing.T) {
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
 	req, err := http.NewRequest("GET", "../../../assets/css/montserrat.css", nil)
-	files, err := ioutil.ReadDir("./")
-	println(files)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,6 +34,9 @@ func TestHandler(t *testing.T) {
 
 	// Check the response body is what we expect.
 	data, err := ioutil.ReadFile("./../../assets/css/montserrat.css")
+	if err != nil {
+		t.Fatal(err)
+	}
 	expected := string(data)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got \n %v \nwant\n %v",

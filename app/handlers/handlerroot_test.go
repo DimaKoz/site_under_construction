@@ -45,6 +45,10 @@ func TestRootHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 	data, err := app.GetBytes(app.HtmlUnderConstruction)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	//noinspection GoNilness
 	expected := string(*data)
 	if rr.Body.String() != expected {
