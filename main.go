@@ -1,10 +1,9 @@
 package main
 
 import (
-	"github.com/google/logger"
 	"github.com/gorilla/mux"
 	"net/http"
-	"os"
+	"sync"
 	"time"
 	"under_construction/app"
 	"under_construction/app/apperrors"
@@ -12,24 +11,10 @@ import (
 	"under_construction/app/middleware"
 )
 
-var log *logger.Logger
+var wait sync.WaitGroup
 
-func main() {
-
-	lf, errLog := os.OpenFile(app.LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
-	if errLog != nil {
-		logger.Fatalf("Failed to open log file: %v", errLog)
-	}
-	defer lf.Close()
-
-	log = logger.Init("LoggerExample", true, false, lf)
-	defer log.Close()
-	logger.Warningln("")
-	logger.Warningln("================================================================")
-	logger.Warningln("")
-	logger.Warningln("Logger started")
-	logger.Warningln("")
-	logger.Warningln("================================================================")
+// I've used an idea from https://stackoverflow.com/a/42533360/3166697
+func startHttpServer(waitGroup *sync.WaitGroup, ch *chan error) *http.Server {
 
 	router := defaultMux()
 
@@ -42,7 +27,37 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Fatal(srv.ListenAndServe())
+	go func() {
+		defer func() {
+			if waitGroup != nil {
+				waitGroup.Done()
+			}
+		}()
+
+		// returns ErrServerClosed on graceful close
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			if ch != nil {
+				*ch <- err
+			}
+
+		}
+	}()
+
+	// returning reference so caller can call Shutdown()
+	return srv
+}
+
+func main() {
+	channelError := make(chan error)
+
+	initLogger()
+	defer closeLogger()
+	wait.Add(1)
+	_ = startHttpServer(&wait, &channelError)
+	wait.Wait()
+
+	err := <-channelError
+	log.Fatalf("ListenAndServe(): %s", err)
 }
 
 func defaultMux() *mux.Router {
