@@ -20,6 +20,7 @@ func TestAddKeyAndPath(t *testing.T) {
 	if err != nil {
 		t.Errorf("bytes_cache returned unexpected body: got \n %v \nwant\n %v",
 			err.Error(), "[]byte")
+		return
 	}
 
 	if bytes.Compare(expected, *data) != 0 {
@@ -46,6 +47,7 @@ func TestGetBytes(t *testing.T) {
 	if err != nil {
 		t.Errorf("bytes_cache returned unexpected body: got \n %v \nwant\n %v",
 			err.Error(), "[]byte")
+		return
 	}
 
 	if bytes.Compare(expected, *result) != 0 {

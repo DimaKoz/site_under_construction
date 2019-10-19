@@ -48,6 +48,7 @@ func TestHandlerError(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
+		} else {
 			var err error
 			switch t := r.(type) {
 			case string:
@@ -81,6 +82,7 @@ func TestHandlerNotFoundError(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
+		} else {
 			var err error
 			switch t := r.(type) {
 			case string:

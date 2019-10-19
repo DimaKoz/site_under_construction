@@ -1,4 +1,4 @@
-package app
+package middleware
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"runtime"
+	"under_construction/app"
 	"under_construction/app/apperrors"
 )
 
@@ -27,7 +28,7 @@ func deferredRecover(w http.ResponseWriter) {
 
 		if ok {
 			fmt.Println("NotFoundError", ferr)
-			data, err := GetBytes(Html404)
+			data, err := app.GetBytes(app.Html404)
 			if err != nil {
 				http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
 				return
@@ -46,35 +47,36 @@ func deferredRecover(w http.ResponseWriter) {
 				return
 			}
 			return
-		} else {
-			fmt.Println("unknown type of error")
-			fmt.Println(err)
-			data, err := GetBytes(Html500)
-			if err != nil {
-				http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-				return
-			}
-			strData := string(*data)
-			t, err := template.New("500").Parse(strData)
-			//t, err := template.ParseFiles(Html500)
-			if err != nil {
-				http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-				return
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			err = t.Execute(w, nil)
-			if err != nil {
-				http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
-				return
-			}
-
 		}
+
+		fmt.Println("unknown type of error")
+		fmt.Println(err)
+		data, err := app.GetBytes(app.Html500)
+		if err != nil {
+			http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
+			return
+		}
+		strData := string(*data)
+		t, err := template.New("500").Parse(strData)
+		//t, err := template.ParseFiles(Html500)
+		if err != nil {
+			http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		err = t.Execute(w, nil)
+		if err != nil {
+			http.Error(w, "Something went wrong :(", http.StatusInternalServerError)
+			return
+		}
+
 		loggingErr(err)
 		//TODO sendMeMail(err)
 
 	}
 }
 
+// RecoverWrap is a middleware func which tries to recover panics
 func RecoverWrap(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer deferredRecover(w)

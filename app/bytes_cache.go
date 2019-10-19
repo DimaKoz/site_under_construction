@@ -5,9 +5,11 @@ import (
 	"sync"
 )
 
-var cacheByte = make(map[string][]byte)
 var cacheByteMutex sync.Mutex
+var cacheByte = make(map[string][]byte)
 
+// AddKeyAndPath appends to the internal cache with 'key' a file with 'path'
+// It needs for some tests
 func AddKeyAndPath(key string, path string) error {
 	cacheByteMutex.Lock()
 	defer cacheByteMutex.Unlock()
@@ -23,6 +25,7 @@ func AddKeyAndPath(key string, path string) error {
 	return nil
 }
 
+// RemoveKey removes a value from a cache by 'key'
 func RemoveKey(key string) {
 	cacheByteMutex.Lock()
 	defer cacheByteMutex.Unlock()
@@ -30,6 +33,7 @@ func RemoveKey(key string) {
 	delete(cacheByte, key)
 }
 
+// GetBytes reads data from file puts it to a cache by 'path' key
 func GetBytes(fileName string) (*[]byte, error) {
 	cacheByteMutex.Lock()
 	defer cacheByteMutex.Unlock()

@@ -1,4 +1,4 @@
-package app
+package middleware
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"under_construction/app"
 	"under_construction/app/apperrors"
 )
 
@@ -16,7 +17,7 @@ var lf *os.File
 
 func initLogger() {
 	var errLog error
-	lf, errLog = os.OpenFile(LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+	lf, errLog = os.OpenFile(app.LogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if errLog != nil {
 		log.Fatalf("Failed to open log file: %v", errLog)
 	}
@@ -36,7 +37,7 @@ func TestRecoverWrap404(t *testing.T) {
 
 	initLogger()
 	defer recoveringExpectPanic(t)
-	_ = AddKeyAndPath(Html404, "./../html/error_404_page.html")
+	_ = app.AddKeyAndPath(app.Html404, "./../../html/error_404_page.html")
 	req, err := http.NewRequest("GET", "/api/users" /*there is any path*/, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -61,8 +62,8 @@ func TestRecoverWrap500WhenNotFoundPanic(t *testing.T) {
 
 	initLogger()
 	defer recoveringExpectPanic(t)
-	RemoveKey(Html404)
-	_ = AddKeyAndPath(Html404, "")
+	app.RemoveKey(app.Html404)
+	_ = app.AddKeyAndPath(app.Html404, "")
 	req, err := http.NewRequest("GET", "/api/users" /*there is any path*/, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -89,8 +90,8 @@ func TestRecoverWrap500When500(t *testing.T) {
 
 	initLogger()
 	defer recoveringExpectPanic(t)
-	RemoveKey(Html500)
-	_ = AddKeyAndPath(Html500, "./../html/error_500_page.html")
+	app.RemoveKey(app.Html500)
+	_ = app.AddKeyAndPath(app.Html500, "./../../html/error_500_page.html")
 	req, err := http.NewRequest("GET", "/api/users" /*there is any path*/, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -116,8 +117,8 @@ func TestRecoverWrap500When500(t *testing.T) {
 func TestLogging(t *testing.T) {
 	initLogger()
 	defer recoveringExpectPanic(t)
-	RemoveKey(Html500)
-	_ = AddKeyAndPath(Html500, "./../html/error_500_page.html")
+	app.RemoveKey(app.Html500)
+	_ = app.AddKeyAndPath(app.Html500, "./../../html/error_500_page.html")
 	req, err := http.NewRequest("GET", "/api/users" /*there is any path*/, nil)
 	if err != nil {
 		t.Fatal(err)

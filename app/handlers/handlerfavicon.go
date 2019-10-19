@@ -6,6 +6,7 @@ import (
 	"under_construction/app"
 )
 
+// ServeFavicon serves for a favicon for some cases
 func ServeFavicon(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "image/x-icon")

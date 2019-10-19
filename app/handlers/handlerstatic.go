@@ -7,6 +7,7 @@ import (
 	err2 "under_construction/app/apperrors"
 )
 
+// ServeStatic serves for requests of static files
 func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	//TODO etag , for example https://github.com/bouk/staticfiles/blob/master/files/files.go and https://github.com/dc0d/cache-control
 

@@ -9,6 +9,7 @@ import (
 	"under_construction/app"
 	"under_construction/app/apperrors"
 	"under_construction/app/handlers"
+	"under_construction/app/middleware"
 )
 
 var log *logger.Logger
@@ -46,15 +47,15 @@ func main() {
 
 func defaultMux() *mux.Router {
 	router := mux.NewRouter()
-	router.NotFoundHandler = app.RecoverWrap(http.HandlerFunc(requestPanic))
-	router.Handle(app.PathPatternUnknownError, app.RecoverWrap(http.HandlerFunc(requestUnknownError)))
-	router.Handle(app.PathPatternRoot, app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.RootHandler), false)))
-	router.Handle(app.PathPatternNotFound, app.RecoverWrap(http.HandlerFunc(requestPanic)))
-	router.Handle(app.PathPatternFavicon, app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeFavicon), false)))
-	router.PathPrefix(app.PathPatternWoff2).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
-	router.PathPrefix(app.PathPatternCss).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
-	router.PathPrefix(app.PathPatternJs).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
-	router.PathPrefix(app.PathPatternImage).Handler(app.RecoverWrap(app.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.NotFoundHandler = middleware.RecoverWrap(http.HandlerFunc(requestPanic))
+	router.Handle(app.PathPatternUnknownError, middleware.RecoverWrap(http.HandlerFunc(requestUnknownError)))
+	router.Handle(app.PathPatternRoot, middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.RootHandler), false)))
+	router.Handle(app.PathPatternNotFound, middleware.RecoverWrap(http.HandlerFunc(requestPanic)))
+	router.Handle(app.PathPatternFavicon, middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeFavicon), false)))
+	router.PathPrefix(app.PathPatternWoff2).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.PathPrefix(app.PathPatternCss).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.PathPrefix(app.PathPatternJs).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.PathPrefix(app.PathPatternImage).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
 	return router
 }
 

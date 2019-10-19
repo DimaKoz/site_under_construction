@@ -49,7 +49,6 @@ func TestRootHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	//noinspection GoNilness
 	expected := string(*data)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got \n %v \nwant\n %v",

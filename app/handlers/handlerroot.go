@@ -9,6 +9,7 @@ import (
 	err2 "under_construction/app/apperrors"
 )
 
+// RootHandler serves for "/" path
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 
 	logMessage := fmt.Sprintf("method:[%s], path:[%s]", r.Method, r.URL.Path) //get request method
