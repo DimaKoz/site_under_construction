@@ -79,37 +79,7 @@ func recoveringExpectNotFoundPanic(t *testing.T) {
 
 }
 
-func TestRootHandler404(t *testing.T) {
-	initLogger()
-	defer recoveringExpectNotFoundPanic(t)
-	req, err := http.NewRequest("GET", "oops", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	rr := NewRecorderTest()
-	handler := http.HandlerFunc(RootHandler)
-
-	handler.ServeHTTP(rr, req)
-
-}
-
-func TestRootHandlerNotFound(t *testing.T) {
-	initLogger()
-
-	defer recoveringExpectNotFoundPanic(t)
-	app.RemoveKey(app.HtmlUnderConstruction)
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(RootHandler)
-
-	handler.ServeHTTP(rr, req)
-
-}
 
 func TestRootHandlerNotFound2(t *testing.T) {
 	initLogger()
