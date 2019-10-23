@@ -24,7 +24,7 @@ func TestCheckCache(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := CheckCache(testHandler, false)
+	handler := CheckCache(testHandler)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -58,7 +58,7 @@ func TestCheckCacheStatic(t *testing.T) {
 	})
 	rr := httptest.NewRecorder()
 
-	handler := CheckCache(testHandler, false)
+	handler := CheckCache(testHandler)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNotModified {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -81,7 +81,7 @@ func TestCheckCacheFavicon(t *testing.T) {
 	})
 	rr := httptest.NewRecorder()
 
-	handler := CheckCache(testHandler, false)
+	handler := CheckCache(testHandler)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNotModified {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -126,6 +126,6 @@ func TestCheckCachePanic(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := CheckCache(testHandler, false)
+	handler := CheckCache(testHandler)
 	handler.ServeHTTP(rr, req)
 }
