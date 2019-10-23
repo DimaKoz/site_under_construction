@@ -15,8 +15,11 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 
 	data, err := app.GetBytes(path)
 	if err == nil {
-		contentType := getContentType(path)
-		w.Header().Add("Content-Type", contentType)
+		contentType := GetContentType(path)
+		if w.Header().Get(app.HeaderKeyContentType) == "" {
+			w.Header().Add(app.HeaderKeyContentType, contentType)
+		}
+
 
 		if _, err := w.Write(*data); err != nil {
 			panic(err)
@@ -26,7 +29,7 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getContentType(path string) string {
+func GetContentType(path string) string {
 	var contentType string
 
 	if strings.HasSuffix(path, ".css") {
@@ -43,6 +46,8 @@ func getContentType(path string) string {
 		contentType = "image/jpg"
 	} else if strings.HasSuffix(path, ".svg") {
 		contentType = "image/svg+xml"
+	} else if path == "/" {
+		contentType = "text/html"
 	} else {
 		contentType = "text/plain"
 	}

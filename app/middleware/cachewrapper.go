@@ -10,17 +10,17 @@ import (
 
 // CheckCache is a middleware function that checks 'If-None-Match' header
 // and sets http.StatusNotModified when it possible
-func CheckCache(h http.Handler, isStatic bool) http.Handler {
+func CheckCache(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var data *[]byte
 		var strData string
 		var err error
-		if !isStatic && r.URL.Path == "/" {
+		if r.URL.Path == "/" {
 			data, err = app.GetBytes(app.HtmlUnderConstruction)
 			if err == nil {
 				strData = string(*data)
 			}
-		} else if !isStatic && r.URL.Path == "/favicon.ico" {
+		} else if r.URL.Path == "/favicon.ico" {
 			strData = app.FaviconData
 		} else {
 			path := r.URL.Path[1:]
