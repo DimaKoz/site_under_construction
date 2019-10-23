@@ -64,13 +64,13 @@ func defaultMux() *mux.Router {
 	router := mux.NewRouter()
 	router.NotFoundHandler = middleware.RecoverWrap(http.HandlerFunc(requestPanic))
 	router.Handle(app.PathPatternUnknownError, middleware.RecoverWrap(http.HandlerFunc(requestUnknownError)))
-	router.Handle(app.PathPatternRoot, middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.RootHandler), false)))
+	router.Handle(app.PathPatternRoot, middleware.RecoverWrap(middleware.GzipWrapper(middleware.CheckCache(http.HandlerFunc(handlers.RootHandler)))))
 	router.Handle(app.PathPatternNotFound, middleware.RecoverWrap(http.HandlerFunc(requestPanic)))
-	router.Handle(app.PathPatternFavicon, middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeFavicon), false)))
-	router.PathPrefix(app.PathPatternWoff2).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
-	router.PathPrefix(app.PathPatternCss).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
-	router.PathPrefix(app.PathPatternJs).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
-	router.PathPrefix(app.PathPatternImage).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic), true)))
+	router.Handle(app.PathPatternFavicon, middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeFavicon))))
+	router.PathPrefix(app.PathPatternWoff2).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic))))
+	router.PathPrefix(app.PathPatternCss).Handler(middleware.RecoverWrap(middleware.GzipWrapper(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic)))))
+	router.PathPrefix(app.PathPatternJs).Handler(middleware.RecoverWrap(middleware.GzipWrapper(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic)))))
+	router.PathPrefix(app.PathPatternImage).Handler(middleware.RecoverWrap(middleware.CheckCache(http.HandlerFunc(handlers.ServeStatic))))
 	return router
 }
 
