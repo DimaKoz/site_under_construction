@@ -29,7 +29,6 @@ func TestNoGzip(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-
 	if rr.Header().Get(app.HeaderKeyContentEncoding) != "" {
 		t.Fatalf(`expected Content-Encoding: "" got %s`, rr.Header().Get(app.HeaderKeyContentEncoding))
 	}
@@ -43,7 +42,6 @@ func TestNoGzip(t *testing.T) {
 		t.Log("\n" + string(b))
 	}
 }
-
 
 func TestGzip(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://example.com/", nil)
@@ -66,8 +64,6 @@ func TestGzip(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-
-
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -104,7 +100,6 @@ func TestGzip(t *testing.T) {
 	}
 }
 
-
 func TestNoBody(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://example.com/", nil)
 	if err != nil {
@@ -125,7 +120,6 @@ func TestNoBody(t *testing.T) {
 			status, http.StatusNoContent)
 	}
 
-
 	if rr.Header().Get(app.HeaderKeyContentEncoding) != "" {
 		t.Fatalf(`expected Content-Encoding: "" got %s`, rr.Header().Get(app.HeaderKeyContentEncoding))
 	}
@@ -140,7 +134,6 @@ func TestNoBody(t *testing.T) {
 		t.Log("\n" + string(b))
 	}
 }
-
 
 func BenchmarkGzip(b *testing.B) {
 	body := []byte("ttttttttttesttesttesttesttesttesttesttesttesttesttesttesttest")

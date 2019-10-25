@@ -66,6 +66,7 @@ func (gzr *gzipResponseWriter) Flush() {
 	}
 }
 
+// GzipWrapper does gzipping
 func GzipWrapper(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !strings.Contains(r.Header.Get(app.HeaderKeyAcceptEncoding), app.HeaderValueEncoding) {
