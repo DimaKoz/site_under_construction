@@ -134,7 +134,7 @@ func TestContentType(t *testing.T) {
 		"hdhfy.uye"}
 
 	for i := 0; i < len(income); i++ {
-		result := getContentType(income[i])
+		result := GetContentType(income[i])
 		if result != expected[i] {
 			t.Errorf("getContentType returned unexpected result: got \n %v \nwant\n %v",
 				result, expected[i])

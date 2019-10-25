@@ -20,7 +20,6 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(app.HeaderKeyContentType, contentType)
 		}
 
-
 		if _, err := w.Write(*data); err != nil {
 			panic(err)
 		}
@@ -29,6 +28,7 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetContentType returns type by file-extension
 func GetContentType(path string) string {
 	var contentType string
 

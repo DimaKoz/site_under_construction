@@ -79,8 +79,6 @@ func recoveringExpectNotFoundPanic(t *testing.T) {
 
 }
 
-
-
 func TestRootHandlerNotFound2(t *testing.T) {
 	initLogger()
 
