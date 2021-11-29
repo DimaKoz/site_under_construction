@@ -58,7 +58,7 @@ func TestFaviconHandlerError(t *testing.T) {
 
 	}()
 
-	req, err := http.NewRequest("GET", "/assets/css/montserrat.css", nil)
+	req, err := http.NewRequest("GET", "/assets/css/error_500.css", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

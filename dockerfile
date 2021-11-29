@@ -1,6 +1,6 @@
 # We specify the base image we need for our
 # go application
-FROM golang:1.13.1-alpine3.10
+FROM golang:1.17.2-alpine3.14
 
 # We create an /app directory within our
 # image that will hold our application source
@@ -25,7 +25,7 @@ RUN go build -o main .
 CMD ["/app/main"]
 
 #commands for shh:
-#docker build -t my-go-app .
+#docker build -t site_under_const .
 #docker ps
-#docker run -p 80:8000 -d -it my-go-app
+#docker run -p 80:8000 -d -it site_under_const
 # OR docker kill [CONTAINER ID]

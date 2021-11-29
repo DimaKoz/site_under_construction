@@ -40,13 +40,13 @@ func TestCheckCache(t *testing.T) {
 }
 
 func TestCheckCacheStatic(t *testing.T) {
-	app.RemoveKey("assets/css/montserrat.css")
-	_ = app.AddKeyAndPath("assets/css/montserrat.css", "./../../assets/css/montserrat.css")
-	req, err := http.NewRequest("GET", "/assets/css/montserrat.css", nil)
+	app.RemoveKey("assets/css/error_500.css")
+	_ = app.AddKeyAndPath("assets/css/error_500.css", "./../../assets/css/error_500.css")
+	req, err := http.NewRequest("GET", "/assets/css/error_500.css", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	dataEtagCalculate, err := app.GetBytes("assets/css/montserrat.css")
+	dataEtagCalculate, err := app.GetBytes("assets/css/error_500.css")
 	if err != nil {
 		t.Fatal(err)
 	}

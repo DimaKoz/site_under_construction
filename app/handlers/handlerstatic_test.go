@@ -13,7 +13,7 @@ import (
 func TestHandler(t *testing.T) {
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
-	req, err := http.NewRequest("GET", "../../../assets/css/montserrat.css", nil)
+	req, err := http.NewRequest("GET", "../../../assets/css/error_500.css", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func TestHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	data, err := ioutil.ReadFile("./../../assets/css/montserrat.css")
+	data, err := ioutil.ReadFile("./../../assets/css/error_500.css")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestHandlerError(t *testing.T) {
 
 	}()
 
-	req, err := http.NewRequest("GET", "../../../assets/css/montserrat.css", nil)
+	req, err := http.NewRequest("GET", "../../../assets/css/error_500.css", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,9 +124,9 @@ func TestContentType(t *testing.T) {
 		"text/plain"}
 
 	income := []string{
-		"assets/css/montserrat.css",
+		"assets/css/error_500.css",
 		"assets/html/example.html",
-		"assets/woff2/JTURjIg1_i6t8kCHKm45_c5H3gnD_vx3rCs.woff2",
+		"assets/woff2/QldKNThLqRwH-OJ1UHjlKGlW5qhExfHwNJU.woff2",
 		"assets/js/super.js",
 		"assets/image/flame.png",
 		"assets/image/under_632.jpg",
